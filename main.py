@@ -199,7 +199,10 @@ generate_faces(model_1, grid_size=16, latent=latent1)
 
 
 def main(args):
-    pass
+    if args.actions == "generate":
+
+        generate_faces(model_1, grid_size=16, latent=latent1)
+
 
 if __name__ =="__main__":
     """Main function for face producer with VAEs model."""
@@ -207,5 +210,6 @@ if __name__ =="__main__":
     parser = argparse.ArgumentParser(description="Train and generate new human faces.",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # General settings.
-    parser.add_argument("--plant_type", type=str, default="bell_pepper",
-                        help="Please enter bell_pepper or arbidiopsis to activate the code.")
+    parser.add_argument("--action", type=str, default="generate",
+                        help="Choose action, gene")
+

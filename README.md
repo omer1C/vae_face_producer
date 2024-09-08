@@ -19,9 +19,7 @@ To install the requirements please run:
 pip install -r requirements.txt
 ```
 In order to train the model please follow the next instructions: 
-```
 
-```
 In order to generate images (without training): 
 ```
 
