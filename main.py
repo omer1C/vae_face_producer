@@ -15,6 +15,8 @@ import zipfile
 import functions
 from pathlib import Path
 import time
+import argparse
+
 
 def show(imgs):
     # Create a grid of 8x4 images
@@ -145,7 +147,9 @@ torch.manual_seed(42)
 torch.cuda.manual_seed(42)
 
 #creating a path to the data :
-data_path = '/Users/omercohen/PycharmProjects/VAEs_face_producer/datasets/'
+# data_path = '/Users/omercohen/PycharmProjects/VAEs_face_producer/datasets/'
+mid_path = os.getcwd()
+data_path = os.path.join(mid_path, 'datasets/')
 IMAGE_SIZE = 64
 #Make sure to download the data set before:  https://graal.ift.ulaval.ca/public/celeba/
 trfm = transforms.Compose([transforms.Resize((IMAGE_SIZE,IMAGE_SIZE)), transforms.ToTensor()])
@@ -154,7 +158,7 @@ training_data = datasets.CelebA(root=data_path, split='train', download=False, t
 test_data = datasets.CelebA(root=data_path, split='test', download=False, transform=trfm)
 
 
-# define variabels :
+# define variabels:
 learning_rate = 5e-3
 batch_size = 128
 num_epochs = 3
@@ -194,4 +198,14 @@ optimizer = torch.optim.Adam(model_1.parameters(), lr=learning_rate)
 generate_faces(model_1, grid_size=16, latent=latent1)
 
 
+def main(args):
+    pass
 
+if __name__ =="__main__":
+    """Main function for face producer with VAEs model."""
+
+    parser = argparse.ArgumentParser(description="Train and generate new human faces.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    # General settings.
+    parser.add_argument("--plant_type", type=str, default="bell_pepper",
+                        help="Please enter bell_pepper or arbidiopsis to activate the code.")

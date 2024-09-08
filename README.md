@@ -6,6 +6,27 @@ In this project, I build and train a Variational Autoencoder (VAE) model to prod
 
 This project demonstrates how well we can reconstruct images from the latent space (lower-dimensional representations).
 
+# Example Usage
+
+### Clone The Repository:
+```
+git clone https://github.com/omer1C/vae_face_producer.git
+```
+
+### Requirements
+To install the requirements please run:
+```
+pip install -r requirements.txt
+```
+In order to train the model please follow the next instructions: 
+```
+
+```
+In order to generate images (without training): 
+```
+
+```
+
 ### Concept
 
 The idea behind VAEs is illustrated below:
