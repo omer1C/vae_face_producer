@@ -16,6 +16,8 @@ import functions
 from pathlib import Path
 import time
 import argparse
+import requests
+
 
 
 def show(imgs):
@@ -199,10 +201,39 @@ generate_faces(model_1, grid_size=16, latent=latent1)
 
 
 def main(args):
-    if args.actions == "generate":
+    if args.action == "Generate":
+        model_url = "https://huggingface.co/omer1C/VAEsbest_model.pth/resolve/main/VAEsbest_model.pth"
 
+        # Download the file
+        print("Download weights...")
+        response = requests.get(model_url)
+        # Save the file locally
+        with open('VAEsbest_model.pth', 'wb') as f:
+            f.write(response.content)
+        print("Weights downloaded successfully!")
+
+        # Initial the model:
+        model_1 = functions.VAE(enc_in_chnl, enc_num_hidden, dec_in_chnl, dec_num_hidden, latent1)
+        model_1.weight_init(mean=0, std=0.02)
+        # Upload the weights :
+        weights_path = os.getcwd()
+        weights_path = os.path.join(weights_path,'VAEsbest_model.pth/' )
+
+        model_1.load_state_dict(torch.load(weights_path,
+                                           map_location=torch.device('cpu')))
+        print("Generate faces...")
         generate_faces(model_1, grid_size=16, latent=latent1)
+        create = True
+        while create :
+            user_gen_ans = str(input('Keep generate? Y/N'))
+            if user_gen_ans == 'Y' :
+                generate_faces(model_1, grid_size=16, latent=latent1)
+            else:
+                create = False
+                print('Thank you for visiting 🤗')
 
+    elif args.action == 'Train' :
+        pass
 
 if __name__ =="__main__":
     """Main function for face producer with VAEs model."""
@@ -210,6 +241,7 @@ if __name__ =="__main__":
     parser = argparse.ArgumentParser(description="Train and generate new human faces.",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # General settings.
-    parser.add_argument("--action", type=str, default="generate",
+    parser.add_argument("--action", type=str, default="Generate",
                         help="Choose action, gene")
+
 
