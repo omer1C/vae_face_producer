@@ -60,7 +60,7 @@ def vae_loss(x_recon, x, mu, logvar, logscale):
     # loss2 = (KLD * beta + BCE_loss)/N
     return loss1
 
-def train(num_epochs, batch_size, dataset_size, model, val_break):
+def train(num_epochs, batch_size, dataset_size, model, val_break, optimizer, train_loader, test_loader):
     print('Start training!!!')
     train_losses = []
     val_losses = []
@@ -115,7 +115,7 @@ def train(num_epochs, batch_size, dataset_size, model, val_break):
 
     return train_losses, val_losses
 
-def plot_compare(model):
+def plot_compare(model, train_loader):
     first_batch = next(iter(train_loader))
     imgs, _ = first_batch
     imgs = imgs[:16]
@@ -125,7 +125,7 @@ def plot_compare(model):
     show(imgs)
     show(recon_batch)
 
-def generate_faces(model, grid_size, latent):
+def generate_faces(model, grid_size, latent, batch_size):
     model.eval()
     dummy = torch.empty([batch_size, latent])
     z = torch.randn_like(dummy)
@@ -144,63 +144,65 @@ def generate_faces(model, grid_size, latent):
     grid = make_grid(new_face_list)
     show(grid)
 
-#Set a random seed :
-torch.manual_seed(42)
-torch.cuda.manual_seed(42)
+def main_train(args):
+    #Set a random seed :
+    torch.manual_seed(42)
+    torch.cuda.manual_seed(42)
 
-#creating a path to the data :
-# data_path = '/Users/omercohen/PycharmProjects/VAEs_face_producer/datasets/'
-mid_path = os.getcwd()
-data_path = os.path.join(mid_path, 'datasets/')
-IMAGE_SIZE = 64
-#Make sure to download the data set before:  https://graal.ift.ulaval.ca/public/celeba/
-trfm = transforms.Compose([transforms.Resize((IMAGE_SIZE,IMAGE_SIZE)), transforms.ToTensor()])
+    #creating a path to the data :
+    # data_path = '/Users/omercohen/PycharmProjects/VAEs_face_producer/datasets/'
+    mid_path = os.getcwd()
+    data_path = os.path.join(mid_path, 'datasets/')
+    IMAGE_SIZE = 64
+    # Download celebA data set :
+    trfm = transforms.Compose([transforms.Resize((IMAGE_SIZE,IMAGE_SIZE)), transforms.ToTensor()])
 
-training_data = datasets.CelebA(root=data_path, split='train', download=False, transform=trfm)
-test_data = datasets.CelebA(root=data_path, split='test', download=False, transform=trfm)
-
-
-# define variabels:
-learning_rate = 5e-3
-batch_size = 128
-num_epochs = 3
-dataset_size = 30000
-latent1 = 256
-val_break = int((dataset_size/10)//batch_size + 1)
-#VAE Class inputs:
-enc_in_chnl = 3
-enc_num_hidden = 32
-dec_in_chnl = 256
-dec_num_hidden = 256
-###
-train_loader = torch.utils.data.DataLoader(training_data, batch_size=batch_size, shuffle=True)
-test_loader = torch.utils.data.DataLoader(test_data, batch_size=batch_size, shuffle=True)
-###
-if torch.cuda.is_available():
-    model_1 = functions.VAE(enc_in_chnl, enc_num_hidden, dec_in_chnl, dec_num_hidden, latent1).cuda()
-    model_1.weight_init(mean=0, std=0.02)
-else:
-    model_1 = functions.VAE(enc_in_chnl, enc_num_hidden, dec_in_chnl, dec_num_hidden, latent1)
-    model_1.weight_init(mean=0, std=0.02)
+    training_data = datasets.CelebA(root=data_path, split='train', download=True, transform=trfm)
+    test_data = datasets.CelebA(root=data_path, split='test', download=False, transform=trfm)
 
 
-if torch.backends.mps.is_available():
-    device = torch.device("mps")
-else:
-    device = torch.device("cpu")
+    # define variabels:
+    learning_rate = 5e-3
+    batch_size = 128
+    num_epochs = 3
+    dataset_size = 30000
+    latent1 = 256
+    val_break = int((dataset_size/10)//batch_size + 1)
+    #VAE Class inputs:
+    enc_in_chnl = 3
+    enc_num_hidden = 32
+    dec_in_chnl = 256
+    dec_num_hidden = 256
+    ###
+    train_loader = torch.utils.data.DataLoader(training_data, batch_size=batch_size, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(test_data, batch_size=batch_size, shuffle=True)
+    ###
+    if torch.cuda.is_available():
+        model_1 = functions.VAE(enc_in_chnl, enc_num_hidden, dec_in_chnl, dec_num_hidden, latent1).cuda()
+        model_1.weight_init(mean=0, std=0.02)
+    else:
+        model_1 = functions.VAE(enc_in_chnl, enc_num_hidden, dec_in_chnl, dec_num_hidden, latent1)
+        model_1.weight_init(mean=0, std=0.02)
+
+
+    # if torch.backends.mps.is_available():
+    #     device = torch.device("mps")
+    # else:
+    #     device = torch.device("cpu")
 
 
 
-model_1.load_state_dict(torch.load('/Users/omercohen/PycharmProjects/VAEs_face_producer/VAEsbest_model.pth', map_location=torch.device('cpu')))
-optimizer = torch.optim.Adam(model_1.parameters(), lr=learning_rate)
+    # model_1.load_state_dict(torch.load('/Users/omercohen/PycharmProjects/VAEs_face_producer/VAEsbest_model.pth', map_location=torch.device('cpu')))
+    optimizer = torch.optim.Adam(model_1.parameters(), lr=learning_rate)
 
-# train_losses, val_losses = train(num_epochs, batch_size, dataset_size, model_1, val_break)
-# print_plots(num_epochs, train_losses, val_losses)
-
-generate_faces(model_1, grid_size=16, latent=latent1)
+    train_losses, val_losses = train(num_epochs, batch_size, dataset_size, model_1, val_break, optimizer=optimizer,
+                                     train_loader=train_loader, test_loader=test_loader)
+    print_plots(num_epochs, train_losses, val_losses)
+    generate_faces(model_1, grid_size=16, latent=latent1, batch_size=batch_size)
 
 
 def main(args):
+    #Generate case:
     if args.action == "Generate":
         model_url = "https://huggingface.co/omer1C/VAEsbest_model.pth/resolve/main/VAEsbest_model.pth"
 
@@ -213,6 +215,8 @@ def main(args):
         print("Weights downloaded successfully!")
 
         # Initial the model:
+        # VAE Class inputs:
+        enc_in_chnl = 3; enc_num_hidden = 32 ; dec_in_chnl = 256 ;dec_num_hidden = 256 ;latent1 = 256
         model_1 = functions.VAE(enc_in_chnl, enc_num_hidden, dec_in_chnl, dec_num_hidden, latent1)
         model_1.weight_init(mean=0, std=0.02)
         # Upload the weights :
@@ -222,18 +226,19 @@ def main(args):
         model_1.load_state_dict(torch.load(weights_path,
                                            map_location=torch.device('cpu')))
         print("Generate faces...")
-        generate_faces(model_1, grid_size=16, latent=latent1)
+        batch_size = 128
+        generate_faces(model_1, grid_size=16, latent=latent1, batch_size=batch_size)
         create = True
         while create :
             user_gen_ans = str(input('Keep generate? Y/N'))
             if user_gen_ans == 'Y' :
-                generate_faces(model_1, grid_size=16, latent=latent1)
+                generate_faces(model_1, grid_size=16, latent=latent1, batch_size=batch_size)
             else:
                 create = False
                 print('Thank you for visiting 🤗')
-
-    elif args.action == 'Train' :
-        pass
+    # Train case
+    elif args.action == 'Train':
+        main_train(args)
 
 if __name__ =="__main__":
     """Main function for face producer with VAEs model."""
