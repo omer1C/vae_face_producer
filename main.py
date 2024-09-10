@@ -45,20 +45,12 @@ def print_plots(num_epochs, train_losses, val_losses):
     axs[1].set(xlabel='Epochs', ylabel='Loss')
     plt.show()
 
-def vae_loss(x_recon, x, mu, logvar, logscale):
+def vae_loss(x_recon, x, mu, logvar):
     beta = 0.1
-    # scale = torch.exp(logscale)
-    # dist = torch.distributions.Normal(x_recon, scale)
-    # log_pxz = dist.log_prob(x)
-    # BCE = log_pxz.sum(dim=(1, 2, 3))
-    # BCE = nnF.mse_loss(x_recon, x)
-    BCE_loss = nnF.binary_cross_entropy(x_recon, x, reduction='sum')
-    # BCE_loss = nnF.mse_loss(x_recon, x, reduction='sum')
+    # BCE_loss = nnF.binary_cross_entropy(x_recon, x, reduction='sum')
+    BCE_loss = nnF.mse_loss(x_recon, x, reduction='sum')
     KLD = - 0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-    N = x.shape[0]
-    loss1 = (KLD * beta + BCE_loss)
-    # loss2 = (KLD * beta + BCE_loss)/N
-    return loss1
+    return (KLD * beta + BCE_loss) / x.shape[0]
 
 def train(num_epochs, batch_size, dataset_size, model, val_break, optimizer, train_loader, test_loader):
     print('Start training!!!')
@@ -75,13 +67,10 @@ def train(num_epochs, batch_size, dataset_size, model, val_break, optimizer, tra
                 imgs = imgs.cuda()
 
             optimizer.zero_grad()
-            # a1 = time.time()
             recon_batch, mu, logvar = model(imgs)
 
             # Compute VAE loss
-            loss = vae_loss(recon_batch, imgs, mu, logvar, model.log_scale)
-            # b1 = time.time()
-            # print(f'model + loss time = {b1-a1}')
+            loss = vae_loss(recon_batch, imgs, mu, logvar)
             # Backpropagation
             loss.backward()
             optimizer.step()
@@ -101,7 +90,7 @@ def train(num_epochs, batch_size, dataset_size, model, val_break, optimizer, tra
                 if torch.cuda.is_available():
                     img = img.cuda()
                 recon_batch, mu, logvar = model(img)
-                val_loss += vae_loss(recon_batch, img, mu, logvar, model.log_scale)
+                val_loss += vae_loss(recon_batch, img, mu, logvar)
                 if(batch_idx >= val_break):
                    break
         val_loss /= len(test_loader.dataset)

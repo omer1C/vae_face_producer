@@ -55,9 +55,7 @@ class Encoder(nn.Module):
 
         batch_size = inputs.size(0)
         mu = self.fc_mu(inputs.view(batch_size, -1))
-        # print(f'mu value = {mu}')
         logvar = self.fc_logvar(inputs.view(batch_size, -1))
-        # print(f'logvar value = {logvar}')
 
         return mu, logvar
 
@@ -71,7 +69,6 @@ class Decoder(nn.Module):
         self.num_hiddens = num_hiddens
         self.in_channels = in_channels
         self.H4, self.W4, self.C4 = LinearDimCalc(IMAGE_SIZE, IMAGE_SIZE, self.in_channels, self.num_hiddens)
-        #print('H4 =', self.H4,'W4 = ', self.W4,'C4 = ',self.C4)
         self.fc_dec = nn.Linear(latent, self.H4 * self.W4 * self.C4)  # Insert the output size
 
         self.block1 = nn.Sequential(
@@ -108,15 +105,10 @@ class Decoder(nn.Module):
         inputs = self.fc_dec(inputs)
         inputs = inputs.view(-1, self.C4, self.H4, self.W4)
         inputs = self.block1(inputs)
-        # print(f'Decoder Block number {1} max val = {inputs.max()} min val = {inputs.min()}')
         inputs = self.block2(inputs)
-        # print(f'Decoder Block number {2} max val = {inputs.max()} min val = {inputs.min()}')
         inputs = self.block3(inputs)
-        # print(f'Decoder Block number {3} max val = {inputs.max()} min val = {inputs.min()}')
         inputs = self.block4(inputs)
         x_rec = self.block5(inputs)
-
-
         return x_rec
 
 class VAE(nn.Module):
@@ -139,16 +131,9 @@ class VAE(nn.Module):
                 m.bias.data.zero_()
 
     def forward(self, x):
-        # a1 = time.time()
         mu, logvar = self.encode(x)
-        # b1 = time.time()
-        # print(f'encoder time = {b1-a1}')
-        # a2 = time.time()
         z = self.reparametrize(mu, logvar)
         x_rec = self.decode(z)
-        # b2 = time.time()
-        # print(f'decoder time = {b2-a2}')
-
         return x_rec, mu, logvar
 
 
