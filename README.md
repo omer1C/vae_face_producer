@@ -29,6 +29,8 @@ python3 main.py --action Train --epochs NUM_OF_EPOCHS --latent DIMENSION --learn
 ```
 
 In order to generate images (without training): 
+
+Using [Hugging Face🤗](https://huggingface.co/omer1C/VAEsbest_model.pth/blob/main/VAEsbest_model.pth)to download the weights 
 ```
 python3 main.py --action Generate 
 
