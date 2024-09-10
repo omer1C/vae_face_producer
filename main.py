@@ -145,28 +145,27 @@ def generate_faces(model, grid_size, latent, batch_size):
     show(grid)
 
 def main_train(args):
-    #Set a random seed :
+    #Set a random seed:
     torch.manual_seed(42)
     torch.cuda.manual_seed(42)
 
-    #creating a path to the data :
-    # data_path = '/Users/omercohen/PycharmProjects/VAEs_face_producer/datasets/'
+    #Creating a path to the data:
     mid_path = os.getcwd()
     data_path = os.path.join(mid_path, 'datasets/')
     IMAGE_SIZE = 64
-    # Download celebA data set :
+    #Download celebA data set :
     trfm = transforms.Compose([transforms.Resize((IMAGE_SIZE,IMAGE_SIZE)), transforms.ToTensor()])
 
     training_data = datasets.CelebA(root=data_path, split='train', download=True, transform=trfm)
     test_data = datasets.CelebA(root=data_path, split='test', download=False, transform=trfm)
 
 
-    # define variabels:
-    learning_rate = 5e-3
+    #Define variabels:
+    learning_rate = args.learning_rate
     batch_size = 128
-    num_epochs = 3
+    num_epochs = args.epochs
     dataset_size = 30000
-    latent1 = 256
+    latent1 = args.latent
     val_break = int((dataset_size/10)//batch_size + 1)
     #VAE Class inputs:
     enc_in_chnl = 3
@@ -183,13 +182,6 @@ def main_train(args):
     else:
         model_1 = functions.VAE(enc_in_chnl, enc_num_hidden, dec_in_chnl, dec_num_hidden, latent1)
         model_1.weight_init(mean=0, std=0.02)
-
-
-    # if torch.backends.mps.is_available():
-    #     device = torch.device("mps")
-    # else:
-    #     device = torch.device("cpu")
-
 
 
     # model_1.load_state_dict(torch.load('/Users/omercohen/PycharmProjects/VAEs_face_producer/VAEsbest_model.pth', map_location=torch.device('cpu')))
@@ -214,8 +206,8 @@ def main(args):
             f.write(response.content)
         print("Weights downloaded successfully!")
 
-        # Initial the model:
-        # VAE Class inputs:
+        #Initial the model:
+        #VAE Class inputs:
         enc_in_chnl = 3; enc_num_hidden = 32 ; dec_in_chnl = 256 ;dec_num_hidden = 256 ;latent1 = 256
         model_1 = functions.VAE(enc_in_chnl, enc_num_hidden, dec_in_chnl, dec_num_hidden, latent1)
         model_1.weight_init(mean=0, std=0.02)
@@ -248,5 +240,10 @@ if __name__ =="__main__":
     # General settings.
     parser.add_argument("--action", type=str, default="Generate",
                         help="Choose action, gene")
-
+    parser.add_argument("--epochs", type=str, default="20",
+                        help="Choose action, gene")
+    parser.add_argument("--latent", type=str, default="256",
+                        help="Choose action, gene")
+    parser.add_argument("--learning_rate", type=str, default="5e-3",
+                        help="Choose action, gene")
 
