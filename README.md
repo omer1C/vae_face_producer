@@ -21,6 +21,14 @@ To install the requirements please run:
 ```
 pip install -r requirements.txt
 ```
+## Generate 
+In order to generate images (without training):
+Note, the wights will be downloaded from [Hugging Face🤗](https://huggingface.co/omer1C/VAEsbest_model.pth/blob/main/VAEsbest_model.pth).
+```
+python3 main.py --action Generate 
+
+```
+## Train
 In order to train the model please follow the next instructions:
 (It is recommended to have a GPU in your computer in order to train the model.)
 - Enter number of epochs (int).
@@ -28,14 +36,6 @@ In order to train the model please follow the next instructions:
 - Enter learning rate (int), 5e-3 is recommended.
 ```
 python3 main.py --action Train --epochs NUM_OF_EPOCHS --latent DIMENSION --learning_rate LEARNING_RATE
-
-```
-
-In order to generate images (without training): 
-
-Note, the wights will be downloaded from [Hugging Face🤗](https://huggingface.co/omer1C/VAEsbest_model.pth/blob/main/VAEsbest_model.pth).
-```
-python3 main.py --action Generate 
 
 ```
 
