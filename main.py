@@ -187,7 +187,7 @@ def main(args):
     if args.action == "Generate":
         model_url = "https://huggingface.co/omer1C/VAEsbest_model.pth/resolve/main/VAEsbest_model.pth"
         # Download the file
-        print("Download weights...")
+        print("Downloading weights... Please wait.")
         response = requests.get(model_url)
         # Save the file locally
         with open('VAEsbest_model.pth', 'wb') as f:
@@ -205,7 +205,7 @@ def main(args):
 
         model_1.load_state_dict(torch.load(weights_path,
                                            map_location=torch.device('cpu')))
-        print("Generate faces...")
+        print("Generating faces using the pre-trained model...")
         batch_size = 128
         generate_faces(model_1, grid_size=16, latent=latent1, batch_size=batch_size)
         create = True
