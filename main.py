@@ -100,7 +100,7 @@ def train(num_epochs, batch_size, dataset_size, model, val_break, optimizer, tra
         if val_loss <= min_loss:
             min_loss = val_loss
             print(f'New best epoch, number{epoch+1}, with Test Loss: {val_losses[-1]}, best model updated!')
-            torch.save(model.state_dict(), "/Users/omercohen/PycharmProjects/VAEs_face_producer/" + "best_model.pth")
+            torch.save(model.state_dict(), os.path.join(os.getcwd(), "best_model.pth"))
 
     return train_losses, val_losses
 
@@ -186,7 +186,6 @@ def main(args):
     #Generate case:
     if args.action == "Generate":
         model_url = "https://huggingface.co/omer1C/VAEsbest_model.pth/resolve/main/VAEsbest_model.pth"
-
         # Download the file
         print("Download weights...")
         response = requests.get(model_url)
@@ -202,7 +201,7 @@ def main(args):
         model_1.weight_init(mean=0, std=0.02)
         # Upload the weights :
         weights_path = os.getcwd()
-        weights_path = os.path.join(weights_path,'VAEsbest_model.pth/' )
+        weights_path = os.path.join(weights_path,'VAEsbest_model.pth' )
 
         model_1.load_state_dict(torch.load(weights_path,
                                            map_location=torch.device('cpu')))
@@ -235,4 +234,5 @@ if __name__ =="__main__":
                         help="Choose action, gene")
     parser.add_argument("--learning_rate", type=str, default="5e-3",
                         help="Choose action, gene")
-
+    args = parser.parse_args()
+    main(args)

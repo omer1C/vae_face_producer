@@ -12,7 +12,10 @@ This project demonstrates how well we can reconstruct images from the latent spa
 ```
 git clone https://github.com/omer1C/vae_face_producer.git
 ```
-
+Make sure to navigate to the correct dir, you can use: 
+```
+cd vae_face_producer/
+```
 ### Requirements
 To install the requirements please run:
 ```
