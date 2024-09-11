@@ -23,6 +23,7 @@ pip install -r requirements.txt
 ```
 ## Generate 
 In order to generate images (without training):
+
 Note, the wights will be downloaded from [Hugging Face🤗](https://huggingface.co/omer1C/VAEsbest_model.pth/blob/main/VAEsbest_model.pth).
 ```
 python3 main.py --action Generate 
