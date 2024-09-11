@@ -2,7 +2,6 @@ import torch.nn as nn
 import torch
 IMAGE_SIZE = 64
 
-
 class Encoder(nn.Module):
 
     def __init__(self, in_channels, num_hiddens, latent):
@@ -40,19 +39,10 @@ class Encoder(nn.Module):
         self.fc_logvar = nn.Linear(H4 * W4 * C4, latent)  # Insert the input size
 
     def forward(self, inputs):
-        # print(f'Encoder start max val = {inputs.max()} min val = {inputs.min()}')
-        # print(f'Block 0 mean = {inputs.mean()} variance = {inputs.var()}')
         inputs = self.block1(inputs)
-        # print(f'Encoder Block number {1} max val = {inputs.max()} min val = {inputs.min()}')
-        # print(f'Block 1 mean = {inputs.mean()} variance = {inputs.var()}')
         inputs = self.block2(inputs)
-        # print(f'Encoder Block number {2} max val = {inputs.max()} min val = {inputs.min()}')
         inputs = self.block3(inputs)
-        # print(f'Encoder Block number {3} max val = {inputs.max()} min val = {inputs.min()}')
         inputs = self.block4(inputs)
-        # print(f'Encoder Block number {4} max val = {inputs.max()} min val = {inputs.min()}')
-
-
         batch_size = inputs.size(0)
         mu = self.fc_mu(inputs.view(batch_size, -1))
         logvar = self.fc_logvar(inputs.view(batch_size, -1))
@@ -64,8 +54,6 @@ class Encoder(nn.Module):
 class Decoder(nn.Module):
     def __init__(self, in_channels, num_hiddens, latent):
         super(Decoder, self).__init__()
-
-
         self.num_hiddens = num_hiddens
         self.in_channels = in_channels
         self.H4, self.W4, self.C4 = LinearDimCalc(IMAGE_SIZE, IMAGE_SIZE, self.in_channels, self.num_hiddens)
